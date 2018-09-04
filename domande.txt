@@ -1,0 +1,4 @@
+indirizzo è un campo strutturato o una stringa?
+il prodotto non lo mettiamo?
+non c'è un titolo?
+quando si apre un pop-up gli altri aperti si chiudono?

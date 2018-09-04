@@ -10,3 +10,55 @@ body,
     height: 100%;
     width: 100%;
 }
+
+body,
+button,
+input[type="text"] {
+    font-family: 'Lato', sans-serif;
+}
+
+.toolbar {
+    padding: 1rem;
+}
+
+label {
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+input[type="text"] {
+    padding: 0.5rem 1rem;
+    border: solid 1px lightgray;
+    border-radius: 3px;
+}
+
+button {
+    appearance: none;
+    background-color: teal;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: solid 1px darkcyan;
+    border-radius: 3px;
+}
+
+.toolbar__label {
+    margin-right: 1rem;
+}
+
+.infowindow {
+    padding: 1rem;
+}
+
+.infowindow__img {
+    float: right;
+    width: 50%;
+    margin: 0 0 1rem 1rem;
+}
+
+.infowindow__label {
+    font-weight: bold;
+}
+
+.infowindow__content {
+    margin-bottom: 1em;
+}
