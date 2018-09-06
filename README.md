@@ -1,1 +1,1 @@
-Super minimal website boilerplate
+Dinamco installation map
