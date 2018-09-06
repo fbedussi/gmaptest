@@ -5,6 +5,7 @@ var markers;
 
 var data = [
     {
+        product: "Illuminazione sequenziale",
         dealer: {
             name: "Nord Impianti Srl",
             id: "a"
@@ -20,10 +21,14 @@ var data = [
             lng: 10.3348542
         },
         imageSrc: "https://www.creativelive.com/blog/wp-content/uploads/2016/01/pexels-photo-620x413.jpg",
-        warrantyExpiryTime: 1536061896280,
+        warranty: {
+            type: "Estesa",
+            expiryTime: 1536061896280,
+        },
         notes: '21/7/2016 Sostituzione antano\n5/7/2017 Strombatura supercazzola'
     },
     {
+        product: "Dissuasore di velocità",
         dealer: {
             name: "SicurStrada Srl",
             id: "c"
@@ -39,7 +44,10 @@ var data = [
             lng: 10.1722621
         },
         imageSrc: "https://www.creativelive.com/blog/wp-content/uploads/2016/01/lights-night-unsharp-blured-620x349.jpg",
-        warrantyExpiryTime: 1536061896280,
+        warranty: {
+            type: "Standard",
+            expiryTime: 1536061896280,
+        },
         notes: '10/12/2017 Sostituzione batteria\n2/2/2018 Sostituzione cavo',
     }
 ]
@@ -52,30 +60,45 @@ function setupMarkerOnMap(map) {
     });
     return function setupMarker(markerInfo) {
         var contentString = `<div class="infowindow">
-        <img class="infowindow__img" src="${markerInfo.imageSrc}"/>
-        <dl>
-          <dt class="infowindow__label">Rivenditore: </dt>
-          <dd class="infowindow__content">${markerInfo.dealer.name}</dd>
-          <dt class="infowindow__label">Cliente: </dt>
-          <dd class="infowindow__content">${markerInfo.client.name}</dd>
-          <dt class="infowindow__label">Indirizzo:</dt>
-          <dd class="infowindow__content">${markerInfo.address}</dd>
-          <dt class="infowindow__label">DDT Detas:</dt>
-          <dd class="infowindow__content">${markerInfo.ddt}</dd>
-          <dt class="infowindow__label">Scadenza garanzia: </dt>
-          <dd class="infowindow__content">${dateFormatter.format(new Date(markerInfo.warrantyExpiryTime))}</dd>
-          <dt class="infowindow__label">Note:</dt>
-          <dd class="infowindow__content">${markerInfo.notes.replace('\n', '<br/>')}</dd>
-        </dl>
-      </div>`;
+            <img class="infowindow__img" src="${markerInfo.imageSrc}"/>
+            <dl>
+            <dt class="infowindow__label">Prodotto: </dt>
+            <dd class="infowindow__content">${markerInfo.product}</dd>
+            <dt class="infowindow__label">Rivenditore: </dt>
+            <dd class="infowindow__content">${markerInfo.dealer.name}</dd>
+            <dt class="infowindow__label">Cliente: </dt>
+            <dd class="infowindow__content">${markerInfo.client.name}</dd>
+            <dt class="infowindow__label">Indirizzo:</dt>
+            <dd class="infowindow__content">${markerInfo.address}</dd>
+            <dt class="infowindow__label">DDT Detas:</dt>
+            <dd class="infowindow__content">${markerInfo.ddt}</dd>
+            <dt class="infowindow__label">Tipo garanzia: </dt>
+            <dd class="infowindow__content">${markerInfo.warranty.type}</dd>
+            <dt class="infowindow__label">Scadenza garanzia: </dt>
+            <dd class="infowindow__content">${dateFormatter.format(new Date(markerInfo.warranty.expiryTime))}</dd>
+            <dt class="infowindow__label">Note:</dt>
+            <dd class="infowindow__content">${markerInfo.notes.replace('\n', '<br/>')}</dd>
+            </dl>
+        </div>`;
         var infowindow = new google.maps.InfoWindow({
             content: contentString
         });
         var isOpen = false;
-        var marker = new google.maps.Marker({ position: markerInfo.coordinates, map: map });
+        var marker = new google.maps.Marker({ 
+            position: markerInfo.coordinates, 
+            map: map,
+            title: markerInfo.product,
+        });
         marker.addListener('click', function () {
             infowindow[isOpen ? 'close' : 'open'](map, marker);
             isOpen = !isOpen;
+            if (isOpen) {
+                markers.forEach((m) => {
+                    if (m.dinamco.infowindow !== infowindow) {
+                        m.dinamco.infowindow.close(map, m);
+                    }
+                });
+            }
         });
         marker.dinamco = {
             infowindow,
@@ -118,7 +141,7 @@ function isSearchTermInMarkerText(marker, searchTerm) {
 }
 
 function filterMarkerBySearchTerm(searchTerm) {
-    return function(marker) {
+    return function (marker) {
         const isVisible = isSearchTermInMarkerText(marker, searchTerm);
         marker.setVisible(isVisible);
         if (!isVisible) {
@@ -132,11 +155,11 @@ function performSearch(searchTerm) {
     markers = markers.map(filterMarkerBySearchTerm(searchTerm));
 }
 
-searchInput.addEventListener('keyup', function() {
+searchInput.addEventListener('keyup', function () {
     performSearch(this.value);
 });
 
-resetTextSearchButton.addEventListener('click', function() {
+resetTextSearchButton.addEventListener('click', function () {
     searchInput.value = '';
     performSearch('');
 })
