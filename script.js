@@ -139,7 +139,6 @@ function setupMarkerOnMap(map) {
         var infowindow = new google.maps.InfoWindow({
             content: contentString
         });
-        var isOpen = false;
         var marker = new google.maps.Marker({
             position: markerInfo.coordinates,
             map: map,
@@ -147,18 +146,20 @@ function setupMarkerOnMap(map) {
             icon: calculatePinColor(markerInfo.warranty.expiryTime),
         });
         marker.addListener('click', function () {
-            infowindow[isOpen ? 'close' : 'open'](map, marker);
-            isOpen = !isOpen;
-            if (isOpen) {
+            infowindow[this.dinamco.isOpen ? 'close' : 'open'](map, marker);
+            this.dinamco.isOpen = !this.dinamco.isOpen;
+            if (this.dinamco.isOpen) {
                 markers.forEach((m) => {
-                    if (m.dinamco.infowindow !== infowindow) {
+                    if (m.dinamco.infowindow !== infowindow && m.dinamco.isOpen) {
                         m.dinamco.infowindow.close(map, m);
+                        m.dinamco.isOpen = false;
                     }
                 });
             }
         });
         marker.dinamco = {
             infowindow,
+            isOpen: false,
         }
 
         return marker;
