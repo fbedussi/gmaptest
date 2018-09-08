@@ -5,6 +5,8 @@ var markers;
 
 var data = [
     {
+        
+        id: 'inst1',
         product: "Illuminazione sequenziale",
         dealer: {
             name: "Nord Impianti Srl",
@@ -28,6 +30,7 @@ var data = [
         notes: '21/7/2016 Sostituzione antano\n5/7/2017 Strombatura supercazzola'
     },
     {
+        id: 'inst2',
         product: "Dissuasore di velocità",
         dealer: {
             name: "SicurStrada Srl",
@@ -51,6 +54,7 @@ var data = [
         notes: '10/12/2017 Sostituzione batteria\n2/2/2018 Sostituzione cavo',
     },
     {
+        id: 'inst3',
         product: "Illuminazione galleria",
         dealer: {
             name: "DueBi Spa",
@@ -74,6 +78,7 @@ var data = [
         notes: '10/12/2017 Sostituzione batteria\n2/2/2018 Sostituzione cavo',
     },
     {
+        id: 'inst4',
         product: "Led lampeggiante",
         dealer: {
             name: "Ippolito Spa",
@@ -114,48 +119,44 @@ function setupMarkerOnMap(map) {
         month: 'long',
         day: 'numeric'
     });
-    return function setupMarker(markerInfo) {
+    return function setupMarker(installationInfo) {
         var contentString = `<div class="infowindow">
-            <img class="infowindow__img" src="${markerInfo.imageSrc}"/>
             <dl>
             <dt class="infowindow__label">Prodotto: </dt>
-            <dd class="infowindow__content">${markerInfo.product}</dd>
+            <dd class="infowindow__content">${installationInfo.product}</dd>
             <dt class="infowindow__label">Rivenditore: </dt>
-            <dd class="infowindow__content">${markerInfo.dealer.name}</dd>
+            <dd class="infowindow__content">${installationInfo.dealer.name}</dd>
             <dt class="infowindow__label">Cliente: </dt>
-            <dd class="infowindow__content">${markerInfo.client.name}</dd>
+            <dd class="infowindow__content">${installationInfo.client.name}</dd>
             <dt class="infowindow__label">Indirizzo:</dt>
-            <dd class="infowindow__content">${markerInfo.address}</dd>
-            <dt class="infowindow__label">DDT Detas:</dt>
-            <dd class="infowindow__content">${markerInfo.ddt}</dd>
+            <dd class="infowindow__content">${installationInfo.address}</dd>
             <dt class="infowindow__label">Tipo garanzia: </dt>
-            <dd class="infowindow__content">${markerInfo.warranty.type}</dd>
+            <dd class="infowindow__content">${installationInfo.warranty.type}</dd>
             <dt class="infowindow__label">Scadenza garanzia: </dt>
-            <dd class="infowindow__content">${dateFormatter.format(new Date(markerInfo.warranty.expiryTime))}</dd>
-            <dt class="infowindow__label">Note:</dt>
-            <dd class="infowindow__content">${markerInfo.notes.replace('\n', '<br/>')}</dd>
+            <dd class="infowindow__content">${dateFormatter.format(new Date(installationInfo.warranty.expiryTime))}</dd>
             </dl>
         </div>`;
         var infowindow = new google.maps.InfoWindow({
             content: contentString
         });
         var marker = new google.maps.Marker({
-            position: markerInfo.coordinates,
+            position: installationInfo.coordinates,
             map: map,
-            title: markerInfo.product,
-            icon: calculatePinColor(markerInfo.warranty.expiryTime),
+            title: installationInfo.product,
+            icon: calculatePinColor(installationInfo.warranty.expiryTime),
         });
         marker.addListener('click', function () {
-            infowindow[this.dinamco.isOpen ? 'close' : 'open'](map, marker);
-            this.dinamco.isOpen = !this.dinamco.isOpen;
-            if (this.dinamco.isOpen) {
-                markers.forEach((m) => {
-                    if (m.dinamco.infowindow !== infowindow && m.dinamco.isOpen) {
-                        m.dinamco.infowindow.close(map, m);
-                        m.dinamco.isOpen = false;
-                    }
-                });
-            }
+            var openWindow = window.open(`installation.html?id=${installationInfo.id}`, installationInfo.id, '');
+            openWindow.installationInfo = installationInfo; // dataFromParent is a variable in child.html
+            openWindow.addEventListener('load', function(){
+                openWindow.init();
+            });
+        });
+        marker.addListener('mouseover', function () {
+            infowindow.open(map, marker);
+        });
+        marker.addListener('mouseout', function () {
+            infowindow.close(map, marker);
         });
         marker.dinamco = {
             infowindow,
