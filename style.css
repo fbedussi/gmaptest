@@ -48,6 +48,16 @@ button {
 
 .toolbar__label {
     margin-right: 1rem;
+    text-transform: uppercase;
+    vertical-align: middle;
+}
+
+.advancedSearch {
+    padding: 0 1rem;
+}
+
+.advancedSearch__btn {
+    margin-left: 1rem;
 }
 
 .infowindow {

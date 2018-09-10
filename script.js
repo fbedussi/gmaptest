@@ -1,5 +1,7 @@
 const searchInput = document.querySelector('#searchInput');
 const resetTextSearchButton = document.querySelector('#resetTextSearchButton');
+const searchAllBtn = document.querySelector('#searchAll');
+const advancedSearchBtns = [].slice.call(document.querySelectorAll('.advancedSearch__btn'));
 var map;
 var markers;
 
@@ -119,35 +121,35 @@ function setupMarkerOnMap(map) {
         month: 'long',
         day: 'numeric'
     });
-    return function setupMarker(installationInfo) {
+    return function setupMarker(installationData) {
         var contentString = `<div class="infowindow">
             <dl>
             <dt class="infowindow__label">Prodotto: </dt>
-            <dd class="infowindow__content">${installationInfo.product}</dd>
+            <dd class="infowindow__content">${installationData.product}</dd>
             <dt class="infowindow__label">Rivenditore: </dt>
-            <dd class="infowindow__content">${installationInfo.dealer.name}</dd>
+            <dd class="infowindow__content">${installationData.dealer.name}</dd>
             <dt class="infowindow__label">Cliente: </dt>
-            <dd class="infowindow__content">${installationInfo.client.name}</dd>
+            <dd class="infowindow__content">${installationData.client.name}</dd>
             <dt class="infowindow__label">Indirizzo:</dt>
-            <dd class="infowindow__content">${installationInfo.address}</dd>
+            <dd class="infowindow__content">${installationData.address}</dd>
             <dt class="infowindow__label">Tipo garanzia: </dt>
-            <dd class="infowindow__content">${installationInfo.warranty.type}</dd>
+            <dd class="infowindow__content">${installationData.warranty.type}</dd>
             <dt class="infowindow__label">Scadenza garanzia: </dt>
-            <dd class="infowindow__content">${dateFormatter.format(new Date(installationInfo.warranty.expiryTime))}</dd>
+            <dd class="infowindow__content">${dateFormatter.format(new Date(installationData.warranty.expiryTime))}</dd>
             </dl>
         </div>`;
         var infowindow = new google.maps.InfoWindow({
             content: contentString
         });
         var marker = new google.maps.Marker({
-            position: installationInfo.coordinates,
+            position: installationData.coordinates,
             map: map,
-            title: installationInfo.product,
-            icon: calculatePinColor(installationInfo.warranty.expiryTime),
+            title: installationData.product,
+            icon: calculatePinColor(installationData.warranty.expiryTime),
         });
         marker.addListener('click', function () {
-            var openWindow = window.open(`installation.html?id=${installationInfo.id}`, installationInfo.id, '');
-            openWindow.installationInfo = installationInfo; // dataFromParent is a variable in child.html
+            var openWindow = window.open(`installation.html?id=${installationData.id}`, installationData.id, '');
+            openWindow.installationInfo = installationData; // dataFromParent is a variable in child.html
             openWindow.addEventListener('load', function(){
                 openWindow.init();
             });
@@ -160,6 +162,7 @@ function setupMarkerOnMap(map) {
         });
         marker.dinamco = {
             infowindow,
+            installationData,
             isOpen: false,
         }
 
@@ -195,8 +198,32 @@ function initMap() {
     markers = data.map(setupMarker);
 }
 
+function getFieldText(data, key) {
+    switch (key) {
+        case 'client':
+        case 'dealer':
+            return data[key].name;
+        default:
+            return data[key];
+    }
+}
+
+function getTextToSearch(marker) {
+    const fieldsToSearch = advancedSearchBtns
+        .filter((btn) => btn.checked)
+        .map((btn) => btn.dataset.fieldName);
+    
+    return Object.keys(marker.dinamco.installationData)
+        .reduce((textToSearch, fieldName) => 
+            fieldsToSearch.includes(fieldName) ? 
+                textToSearch += ' ' + getFieldText(marker.dinamco.installationData, fieldName)
+                : textToSearch, 
+            '');
+}
+
 function isSearchTermInMarkerText(marker, searchTerm) {
-    return marker.dinamco.infowindow.content.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1;
+    const textToSearch = getTextToSearch(marker);
+    return textToSearch.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1;
 }
 
 function filterMarkerBySearchTerm(searchTerm) {
@@ -221,4 +248,13 @@ searchInput.addEventListener('keyup', function () {
 resetTextSearchButton.addEventListener('click', function () {
     searchInput.value = '';
     performSearch('');
-})
+});
+
+searchAllBtn.addEventListener('click', function(ev) {
+    advancedSearchBtns.forEach((btn) => btn.checked = this.checked);
+    performSearch(searchInput.value);
+});
+
+advancedSearchBtns.forEach((btn) => btn.addEventListener('click', function(ev) {
+    performSearch(searchInput.value);
+}));
