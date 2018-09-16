@@ -2,8 +2,15 @@ const searchInput = document.querySelector('#searchInput');
 const resetTextSearchButton = document.querySelector('#resetTextSearchButton');
 const searchAllBtn = document.querySelector('#searchAll');
 const advancedSearchBtns = [].slice.call(document.querySelectorAll('.advancedSearch__btn'));
+const advancedSearchSelects = [].slice.call(document.querySelectorAll('.advancedSearch__select'));
 var map;
 var markers;
+
+const warrantyType = Object.freeze({
+    gold: 1,
+    silver: 2,
+    bronze: 3,
+});
 
 var data = [
     {
@@ -26,7 +33,7 @@ var data = [
         },
         imageSrc: "https://www.creativelive.com/blog/wp-content/uploads/2016/01/pexels-photo-620x413.jpg",
         warranty: {
-            type: "Estesa",
+            type: warrantyType.gold,
             expiryTime: Date.now() - 1000,
         },
         notes: '21/7/2016 Sostituzione antano\n5/7/2017 Strombatura supercazzola'
@@ -50,7 +57,7 @@ var data = [
         },
         imageSrc: "https://www.creativelive.com/blog/wp-content/uploads/2016/01/lights-night-unsharp-blured-620x349.jpg",
         warranty: {
-            type: "Standard",
+            type: warrantyType.silver,
             expiryTime: Date.now() + (1000 * 60 * 60 * 24 * 15),
         },
         notes: '10/12/2017 Sostituzione batteria\n2/2/2018 Sostituzione cavo',
@@ -74,7 +81,7 @@ var data = [
         },
         imageSrc: "https://imgc.allpostersimages.com/img/print/posters/maximusnd-festive-background-with-natural-bokeh-and-bright-golden-lights-vintage-magic-background-with-color_a-G-13893087-14258384.jpg",
         warranty: {
-            type: "Standard",
+            type: warrantyType.bronze,
             expiryTime: Date.now() + (1000 * 60 * 60 * 24 * 110),
         },
         notes: '10/12/2017 Sostituzione batteria\n2/2/2018 Sostituzione cavo',
@@ -98,7 +105,7 @@ var data = [
         },
         imageSrc: "https://images-na.ssl-images-amazon.com/images/I/71BMRSj0-YL._SL1500_.jpg",
         warranty: {
-            type: "Standard",
+            type: warrantyType.gold,
             expiryTime: Date.now() + (1000 * 60 * 60 * 24 * 150),
         },
         notes: '10/12/2017 Sostituzione batteria\n2/2/2018 Sostituzione cavo',
@@ -226,35 +233,56 @@ function isSearchTermInMarkerText(marker, searchTerm) {
     return textToSearch.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1;
 }
 
-function filterMarkerBySearchTerm(searchTerm) {
+function setMarkerVisibility(marker, isVisible) {
+    marker.setVisible(isVisible);
+    if (!isVisible) {
+        marker.dinamco.infowindow.close(map, marker);
+    }
+    return marker;
+}
+function setMarkerVisibilityByCriteria(criteria) {
     return function (marker) {
-        const isVisible = isSearchTermInMarkerText(marker, searchTerm);
-        marker.setVisible(isVisible);
-        if (!isVisible) {
-            marker.dinamco.infowindow.close(map, marker);
-        }
-        return marker;
+        const isVisible = criteria(marker);
+        return setMarkerVisibility(marker, isVisible);
     }
 }
 
-function performSearch(searchTerm) {
-    markers = markers.map(filterMarkerBySearchTerm(searchTerm));
+function performTextSearch(searchTerm) {
+    markers = markers.map(setMarkerVisibilityByCriteria((marker) => isSearchTermInMarkerText(marker, searchTerm)));
+}
+
+function isKeyAndValueInMarker(marker, {key, value}) {
+    return value === "all" 
+        || marker.dinamco.installationData[key] 
+        && (marker.dinamco.installationData[key] === value || 
+            Object.keys(marker.dinamco.installationData[key]).some((subkey) => marker.dinamco.installationData[key][subkey] == value)
+        ); 
+}
+
+function performIndexedSearch(keyAndValue) {
+    markers = markers.map(setMarkerVisibilityByCriteria((marker) => isKeyAndValueInMarker(marker, keyAndValue)));
 }
 
 searchInput.addEventListener('keyup', function () {
-    performSearch(this.value);
+    performTextSearch(this.value);
 });
 
 resetTextSearchButton.addEventListener('click', function () {
     searchInput.value = '';
-    performSearch('');
+    performTextSearch('');
 });
 
 searchAllBtn.addEventListener('click', function(ev) {
     advancedSearchBtns.forEach((btn) => btn.checked = this.checked);
-    performSearch(searchInput.value);
+    performTextSearch(searchInput.value);
 });
 
 advancedSearchBtns.forEach((btn) => btn.addEventListener('click', function(ev) {
-    performSearch(searchInput.value);
+    performTextSearch(searchInput.value);
+}));
+
+advancedSearchSelects.forEach((select) => select.addEventListener('change', function(ev) {
+    const key = this.dataset.fieldName;
+    const value = this.value;
+    performIndexedSearch({key, value});
 }));
