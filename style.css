@@ -1,3 +1,18 @@
+:root {
+    --toolbar-height: 6rem;
+}
+
+.visuallyHidden {
+    border: none;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -10,6 +25,10 @@ body {
     width: 100%;
 }
 
+fieldset {
+    border: none;
+}
+
 body,
 button,
 input[type="text"] {
@@ -18,7 +37,7 @@ input[type="text"] {
 
 .toolbar {
     padding: 1rem;
-    height: 4rem;
+    height: var(--toolbar-height);
 }
 
 label {
@@ -42,7 +61,7 @@ button {
 }
 
 .map {
-    height: calc(100% - 4rem);
+    height: calc(100% - var(--toolbar-height));
     width: 100%;
 }
 
@@ -52,11 +71,12 @@ button {
     vertical-align: middle;
 }
 
-.advancedSearch {
-    padding: 0 1rem;
+.basicSearch {
+    margin-bottom: 0.5rem;
 }
 
-.advancedSearch__btn {
+.advancedSearch__btn,
+.advancedSearch__select {
     margin-left: 1rem;
 }
 
@@ -75,6 +95,6 @@ button {
     font-weight: bold;
 }
 
-.infowindow__content {
+.infowindow__content:not(:last-child) {
     margin-bottom: 1em;
 }

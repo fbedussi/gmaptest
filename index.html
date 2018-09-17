@@ -1,31 +1,36 @@
 <!DOCTYPE html>
 
 <html>
+
 <head>
     <title>Dinamco</title>
-    <link rel="stylesheet" href="style.css"/>
+    <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-    <div class="toolbar">
-        <label for="searchInput" class="toolbar__label">Cerca</label>
-        <input id="searchInput" type="text"/>
-        <button type="reset" id="resetTextSearchButton" class="resetTextSearchButton">x</button>
-        <span class="advancedSearch">
-            <span class="toolbar__label">Cerca in:</span>
-            <input type="checkbox" id="searchAll" checked/>
+    <form class="toolbar">
+        <fieldset class="basicSearch">
+            <legend class="visuallyHidden">Basic search</legend>
+            <label for="searchInput" class="toolbar__label">Cerca</label>
+            <input id="searchInput" type="text" />
+            <button type="reset" id="resetTextSearchButton" class="resetTextSearchButton">x</button>
+        </fieldset>
+        <fieldset class="advancedSearch">
+            <legend class="visuallyHidden">AdvancedSearch</legend>
+            <span class="toolbar__label">In</span>
+            <input type="checkbox" id="searchAll" checked />
             <label for="searchAll">Tutti i campi</label>
-            <input type="checkbox" id="searchDealer" class="advancedSearch__btn" checked data-field-name="dealer"/>
+            <input type="checkbox" id="searchDealer" class="advancedSearch__btn" checked data-field-name="dealer" />
             <label for="searchDealer">RIvenditore</label>
-            <input type="checkbox" id="searchClient" class="advancedSearch__btn" checked data-field-name="client"/>
+            <input type="checkbox" id="searchClient" class="advancedSearch__btn" checked data-field-name="client" />
             <label for="searchClient">Cliente</label>
-            <input type="checkbox" id="searchAddress" class="advancedSearch__btn" checked data-field-name="address"/>
+            <input type="checkbox" id="searchAddress" class="advancedSearch__btn" checked data-field-name="address" />
             <label for="searchAddress">Indirizzo</label>
-            <input type="checkbox" id="searchDDT" class="advancedSearch__btn" checked data-field-name="ddt"/>
+            <input type="checkbox" id="searchDDT" class="advancedSearch__btn" checked data-field-name="ddt" />
             <label for="searchDDT">DDT</label>
-            <input type="checkbox" id="searchProduct" class="advancedSearch__btn" checked data-field-name="product"/>
+            <input type="checkbox" id="searchProduct" class="advancedSearch__btn" checked data-field-name="product" />
             <label for="searchProduct">Prodotto</label>
-            <input type="checkbox" id="searchNotes" class="advancedSearch__btn" checked data-field-name="notes"/>
+            <input type="checkbox" id="searchNotes" class="advancedSearch__btn" checked data-field-name="notes" />
             <label for="searchNotes">Note</label>
             <select id="searchWarranty" class="advancedSearch__select" data-field-name="warranty">
                 <option value="all" selected>Tutte le garanzie</option>
@@ -33,13 +38,13 @@
                 <option value="2">Silver</option>
                 <option value="3">Bronze</option>
             </select>
-            
-        </span>
-        
-        
-    </div>
-    <div id="map" class="map"></div>    
+    </form>
+
+    </fieldset>
+    <div id="map" class="map"></div>
     <script src="script.js" type="text/javascript"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAYFgNjRDAB6hDokH5hqKs18XIVtT4kEpU&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAYFgNjRDAB6hDokH5hqKs18XIVtT4kEpU&callback=initMap"
+        async defer></script>
 </body>
+
 </html>

@@ -122,6 +122,21 @@ function calculatePinColor(expiryTime) {
         new google.maps.Point(10, 34));
 }
 
+function debounce(fn, interval) {
+    var oldTime = Date.now();
+    var timeout;
+    return function(...args) {
+        var newTime = Date.now();
+        clearTimeout(timeout);
+        if (newTime - oldTime > interval) {
+            fn.apply(fn, ...args);
+            oldTime = newTime;
+        } else {
+            timeout = setTimeout(fn.bind(fn, args), interval);
+        }
+    }
+}
+
 function setupMarkerOnMap(map) {
     const dateFormatter = new Intl.DateTimeFormat('it-it', {
         year: 'numeric',
@@ -137,16 +152,11 @@ function setupMarkerOnMap(map) {
             <dd class="infowindow__content">${installationData.dealer.name}</dd>
             <dt class="infowindow__label">Cliente: </dt>
             <dd class="infowindow__content">${installationData.client.name}</dd>
-            <dt class="infowindow__label">Indirizzo:</dt>
-            <dd class="infowindow__content">${installationData.address}</dd>
-            <dt class="infowindow__label">Tipo garanzia: </dt>
-            <dd class="infowindow__content">${installationData.warranty.type}</dd>
-            <dt class="infowindow__label">Scadenza garanzia: </dt>
-            <dd class="infowindow__content">${dateFormatter.format(new Date(installationData.warranty.expiryTime))}</dd>
             </dl>
         </div>`;
         var infowindow = new google.maps.InfoWindow({
-            content: contentString
+            content: contentString,
+            disableAutoPan: true,
         });
         var marker = new google.maps.Marker({
             position: installationData.coordinates,
@@ -161,12 +171,12 @@ function setupMarkerOnMap(map) {
                 openWindow.init();
             });
         });
-        marker.addListener('mouseover', function () {
+        marker.addListener('mouseover', debounce(function () {
             infowindow.open(map, marker);
-        });
-        marker.addListener('mouseout', function () {
+        }, 150));
+        marker.addListener('mouseout', debounce(function () {
             infowindow.close(map, marker);
-        });
+        }, 150));
         marker.dinamco = {
             infowindow,
             installationData,
